@@ -95,6 +95,18 @@ io.on('connection', (socket) => {
         });
     });
 
+    // 커서 위치 업데이트
+    socket.on('cursor-position', (data) => {
+        const { room, user, position, mode } = data;
+
+        // 같은 방의 다른 사용자들에게 전송
+        socket.to(room).emit('cursor-update', {
+            user: user,
+            position: position,
+            mode: mode
+        });
+    });
+
     // 연결 해제
     socket.on('disconnect', () => {
         console.log('사용자 연결 해제:', socket.id);
