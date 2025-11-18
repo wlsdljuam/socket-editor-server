@@ -4,13 +4,25 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 
 const app = express();
+app.use(cors());
+
+// Health check endpoint
+app.get('/', (req, res) => {
+    res.send('Socket.io 서버가 정상 작동 중입니다.');
+});
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 const server = http.createServer(app);
 
 // CORS 설정
 const io = socketIo(server, {
     cors: {
         origin: "*",
-        methods: ["GET", "POST"]
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 
@@ -73,7 +85,7 @@ io.on('connection', (socket) => {
     });
 });
 
-const PORT = 3000;
-server.listen(PORT, () => {
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, '0.0.0.0', () => {
     console.log(`Socket.io 서버가 ${PORT} 포트에서 실행 중입니다.`);
 });
