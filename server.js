@@ -54,11 +54,39 @@ io.on('connection', (socket) => {
 
     // 에디터 내용 변경
     socket.on('content-change', (data) => {
-        const { room, html, user } = data;
+        const { room, html, fullHtml, user } = data;
 
         // 같은 방의 다른 사용자들에게 전송
         socket.to(room).emit('content-change', {
             html: html,
+            fullHtml: fullHtml,
+            user: user
+        });
+    });
+
+    // 현재 내용 요청 (새 사용자가 들어왔을 때)
+    socket.on('request-current-content', (data) => {
+        const { room, user } = data;
+
+        console.log(`${user}님이 ${room} 방의 현재 내용 요청`);
+
+        // 같은 방의 다른 사용자들에게 전송 (요청자 제외)
+        socket.to(room).emit('request-current-content', {
+            requesterId: socket.id,
+            user: user
+        });
+    });
+
+    // 현재 내용 전송 (기존 사용자가 응답)
+    socket.on('send-current-content', (data) => {
+        const { room, html, fullHtml, user } = data;
+
+        console.log(`${user}님이 현재 내용 전송`);
+
+        // 같은 방의 모든 사용자에게 전송 (새로 들어온 사람이 받도록)
+        socket.to(room).emit('receive-current-content', {
+            html: html,
+            fullHtml: fullHtml,
             user: user
         });
     });
