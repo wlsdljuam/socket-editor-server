@@ -54,13 +54,17 @@ io.on('connection', (socket) => {
 
     // 에디터 내용 변경
     socket.on('content-change', (data) => {
-        const { room, html, fullHtml, user } = data;
+        const { room, html, fullHtml, user, timestamp } = data;
+
+        // 타임스탬프 추가 (클라이언트가 제공하지 않은 경우)
+        const ts = timestamp || Date.now();
 
         // 같은 방의 다른 사용자들에게 전송
         socket.to(room).emit('content-change', {
             html: html,
             fullHtml: fullHtml,
-            user: user
+            user: user,
+            timestamp: ts
         });
     });
 
